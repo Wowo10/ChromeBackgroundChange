@@ -1,16 +1,20 @@
 'use strict';
 
-let changeColor = document.getElementById('changeColor');
-chrome.storage.sync.get('color', function (data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
-});
+let popupContainer = document.getElementById('popupContainer');
+chrome.storage.sync.get('colors', (data) => {
+	for (const val of data.colors) {
+		let button = document.createElement('button');
+		button.style.backgroundColor = val;
 
-changeColor.onclick = function (element) {
-  let color = element.target.value;
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.executeScript(
-      tabs[0].id,
-      { code: 'document.body.style.backgroundColor = "' + color + '";' });
-  });
-};
+		button.onclick = () => {
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.executeScript(
+					tabs[0].id,
+					{ code: 'document.body.style.backgroundColor = "' + val + '";' });
+			});
+			window.close();
+		}
+
+		popupContainer.appendChild(button);
+	}
+});
